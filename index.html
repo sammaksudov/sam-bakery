@@ -156,9 +156,9 @@ label{display:block;margin:14px 0 4px;font-weight:600}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 // ---- BUG SWITCH ----------------------------------------------------------
-// Default = buggy version (for the tester demo). Add ?fixed=1 for the fixed one.
+// This is the FIXED version. The buggy copy for the demo is buggy.html.
 // Every "FIXED" check below marks one intentional bug.
-const FIXED = new URLSearchParams(location.search).has('fixed');
+const FIXED = true; // fixed version: all intentional bugs are turned off
 
 // Product "photos" are drawn as SVG so the page needs no image files.
 const ART = {
