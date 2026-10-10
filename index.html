@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sam Bakery</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🥐</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Outfit:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--plum:#3a2038;--pist:#b9d3a5;--rose:#f2b8c6;--bg:#f6f8f1;--fg:#2a1b2d;--card:#fff;--line:#dfe5d6}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#1d1220;--fg:#f3eef2;--card:#2b1b2e;--line:#4a3350}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 Outfit,system-ui,sans-serif;padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+header{background:var(--plum);color:#fff;display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center;justify-content:space-between;padding:14px 5vw}
+.logo{font:1.6rem 'DM Serif Display',Georgia,serif;color:var(--rose)}
+nav{display:flex;gap:20px;flex-wrap:wrap}
+nav a{color:#fff;text-decoration:none;padding:4px 0;border-bottom:2px solid transparent}
+nav a:hover,nav a.active{border-color:var(--pist)}
+main{max-width:1000px;margin:0 auto;padding:32px 5vw 60px}
+section{display:none}
+section.show{display:block}
+h1,h2,h3{font-family:'DM Serif Display',Georgia,serif;font-weight:400;line-height:1.1}
+h1{font-size:clamp(2.2rem,7vw,4rem);margin:.1em 0 .2em;max-width:14em}
+button{font:600 1rem Outfit,sans-serif;background:var(--plum);color:#fff;border:0;border-radius:8px;padding:10px 16px;cursor:pointer}
+button.chip{background:transparent;color:var(--fg);border:1.5px solid var(--line)}
+button.chip.on{background:var(--pist);color:#2a1b2d;border-color:var(--pist)}
+button.ghost{background:transparent;color:var(--fg);border:1.5px solid var(--fg)}
+:focus-visible{outline:3px solid var(--rose);outline-offset:2px}
+.tools{display:flex;flex-wrap:wrap;gap:10px;margin:20px 0 8px;align-items:center}
+input,select{font:inherit;padding:10px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--fg);width:100%;max-width:420px}
+#search{max-width:240px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:18px;margin-top:14px}
+.item{background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line);display:flex;flex-direction:column}
+.item svg{display:block;width:100%;height:auto}
+.item .body{padding:12px 14px 16px;display:flex;flex-direction:column;gap:6px;flex:1}
+.item strong{font-size:1.05rem}
+.price{font-weight:600}
+.item .row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:8px}
+dialog{border:0;border-radius:16px;padding:0;max-width:min(520px,92vw);width:100%;background:var(--card);color:var(--fg)}
+dialog::backdrop{background:rgba(20,10,22,.6)}
+dialog .inner{padding:0 22px 22px}
+dialog svg{width:100%;height:auto;display:block;margin-bottom:14px}
+dialog ul{padding-left:20px;margin:6px 0}
+.contacts{list-style:none;padding:0;line-height:2}
+.contacts a{color:inherit;text-underline-offset:3px}
+footer{max-width:1000px;margin:0 auto;padding:0 5vw 40px}
+footer a{color:inherit;opacity:.75}
+.cardbox{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:var(--plum);color:#fff;border-radius:14px;padding:18px 20px;margin:18px 0 12px}
+.cardbox .meta{opacity:.8}
+.cardbox button{background:var(--pist);color:#2a1b2d}
+.bar{height:12px;background:var(--line);border-radius:6px;overflow:hidden;margin:6px 0 18px}
+.bar span{display:block;height:100%;width:0;background:var(--pist);transition:width .4s}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:420px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line)}
+tr.done td{opacity:.6}
+tr.next td{background:var(--card);font-weight:600}
+.tag{display:inline-block;padding:2px 10px;border-radius:99px;font-size:.85rem;border:1.5px solid var(--line)}
+.tag.ok{background:var(--pist);border-color:var(--pist);color:#2a1b2d}
+.fun{padding-left:20px}
+.fun li{margin:6px 0}
+.qr{background:#fff;display:inline-block;padding:14px;border-radius:10px;margin:8px 0}
+.meta{opacity:.75;font-size:.92rem}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+label{display:block;margin:14px 0 4px;font-weight:600}
+.err{color:#b3261e;font-size:.9rem;min-height:1.2em}
+@media (prefers-color-scheme:dark){.err{color:#ff8a80}}
+#confirm{margin-top:18px;padding:14px;border-left:5px solid var(--pist);background:var(--card)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Sam Bakery</div>
+  <nav id="nav"></nav>
+</header>
+<main>
+  <section id="home" class="show">
+    <h1>Fresh from the oven, every morning.</h1>
+    <p>Buns, pastries and cakes baked in small batches. Open a product for ingredients, then order for pickup.</p>
+    <div class="tools">
+      <input id="search" type="search" placeholder="Search products" aria-label="Search products">
+      <button class="chip on" data-filter="all">All</button>
+      <button class="chip" data-filter="buns">Buns</button>
+      <button class="chip" data-filter="pastries">Pastries</button>
+      <button class="chip" data-filter="cakes">Cakes</button>
+    </div>
+    <p id="count" class="meta" aria-live="polite"></p>
+    <div id="items" class="grid"></div>
+  </section>
+
+  <section id="about">
+    <h2>About us</h2>
+    <p>Sam Bakery is a neighbourhood bakery. Dough rests overnight, butter is real butter, and nothing is baked more than a day ahead. Pick up your order warm at the counter.</p>
+    <h3>Get in touch</h3>
+    <ul class="contacts">
+      <li><strong>Phone:</strong> <a href="tel:+998710000000">+998 71 000 00 00</a></li>
+      <li><strong>Telegram:</strong> <a href="https://t.me/sambakery" target="_blank" rel="noopener">@sambakery</a></li>
+      <li><strong>Instagram:</strong> <a href="https://instagram.com/sambakery" target="_blank" rel="noopener">@sambakery</a></li>
+      <li><strong>Email:</strong> <a href="mailto:hello@sambakery.example">hello@sambakery.example</a></li>
+      <li><strong>Address:</strong> 1 Example Street, Tashkent</li>
+      <li><strong>Location:</strong> <a href="https://www.google.com/maps/search/?api=1&amp;query=Sam+Bakery+Tashkent" target="_blank" rel="noopener">Open in Google Maps</a></li>
+      <li><strong>Hours:</strong> Daily, 7:00 – 21:00</li>
+    </ul>
+  </section>
+
+  <section id="order">
+    <h2>Order for pickup</h2>
+    <form id="booking" novalidate>
+      <label for="name">Name</label><input id="name" name="name" type="text" autocomplete="name">
+      <div class="err" data-err="name"></div>
+      <label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email">
+      <div class="err" data-err="email"></div>
+      <label for="product">Product</label><select id="product" name="product"></select>
+      <label for="date">Pickup date</label><input id="date" name="date" type="date">
+      <div class="err" data-err="date"></div>
+      <label for="qty">Quantity (1–20)</label><input id="qty" name="qty" type="number" value="1">
+      <div class="err" data-err="qty"></div>
+      <p><button type="submit">Place order</button></p>
+    </form>
+    <div id="confirm" hidden role="status"></div>
+  </section>
+
+  <section id="bonus">
+    <h2>Bonus</h2>
+    <p>Every order earns a stamp on your card. Show your QR code at the counter and collect the reward for that stamp.</p>
+    <div class="cardbox">
+      <div><strong id="cardId"></strong><div class="meta" id="cardSub"></div></div>
+      <button id="showQr">Show QR code</button>
+    </div>
+    <div class="bar" role="progressbar" aria-label="Stamps collected" aria-valuemin="0" aria-valuemax="10"><span id="barFill"></span></div>
+    <div class="scroll"><table id="rewards">
+      <thead><tr><th>Order</th><th>Reward</th><th>Status</th></tr></thead><tbody></tbody>
+    </table></div>
+    <h3>Little surprises</h3>
+    <ul class="fun">
+      <li><strong>Early bird:</strong> show your QR before 8:00 and the croissant is warmer than usual (and a bit cheaper).</li>
+      <li><strong>Bring a friend:</strong> you both get a free cookie when you order together.</li>
+      <li><strong>Birthday:</strong> a free dessert with a candle on it. Bring an ID, we trust but verify.</li>
+      <li><strong>Rainy day:</strong> if it rains, show your QR and get a free tea.</li>
+      <li><strong>Baker's choice:</strong> every 10th card wins a visit to the kitchen to watch the dough being made.</li>
+    </ul>
+    <p><button class="ghost" id="resetCard">Reset card (demo)</button></p>
+  </section>
+  <section id="faq">
+    <h2>FAQ</h2>
+    <h3>How do bonus stamps work?</h3><p>Each order adds one stamp to your card. Show your QR code at pickup.</p>
+    <h3>How long does an order take?</h3><p>Most orders are ready within 30 minutes of the pickup time you choose.</p>
+    <h3>Can I order a custom cake?</h3><p>Yes. Call us at least two days before the date you need it.</p>
+  </section>
+</main>
+<footer><a id="faqLink" href="#faq">FAQ</a></footer>
+
+<dialog id="dlg" aria-labelledby="dlgTitle"><div id="dlgBody"></div></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+// ---- BUG SWITCH ----------------------------------------------------------
+// Default = buggy version (for the tester demo). Add ?fixed=1 for the fixed one.
+// Every "FIXED" check below marks one intentional bug.
+const FIXED = new URLSearchParams(location.search).has('fixed');
+
+// Product "photos" are drawn as SVG so the page needs no image files.
+const ART = {
+  crescent:(a,b)=>`<path d="M28 100Q100 0 172 100Q150 112 136 94Q100 58 64 94Q50 112 28 100Z" fill="${a}"/><path d="M62 88Q100 50 138 88M48 98Q100 36 152 98" stroke="${b}" stroke-width="3" fill="none"/>`,
+  spiral:(a,b)=>`<circle cx="100" cy="76" r="48" fill="${a}"/>`+[14,28,40].map(r=>`<circle cx="100" cy="76" r="${r}" fill="none" stroke="${b}" stroke-width="5" stroke-dasharray="${r*3} 14" stroke-linecap="round"/>`).join(''),
+  round:(a,b)=>`<ellipse cx="100" cy="82" rx="56" ry="42" fill="${a}"/><ellipse cx="86" cy="64" rx="26" ry="11" fill="#fff" opacity=".25"/>`+[[80,76],[104,70],[120,88],[92,96],[70,90]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="3.5" fill="${b}"/>`).join(''),
+  long:(a,b)=>`<rect x="28" y="54" width="144" height="44" rx="22" fill="${a}"/><path d="M34 64Q100 40 166 64Q166 78 150 76Q100 64 50 76Q34 78 34 64Z" fill="${b}"/>`,
+  layers:(a,b)=>[0,1,2,3].map(i=>`<rect x="46" y="${36+i*18}" width="108" height="12" rx="3" fill="${a}"/><rect x="46" y="${48+i*18}" width="108" height="6" fill="${b}"/>`).join('')+`<rect x="46" y="108" width="108" height="8" rx="3" fill="${a}"/>`,
+  tart:(a,b)=>`<path d="M44 74H156L142 112H58Z" fill="${a}"/><ellipse cx="100" cy="74" rx="56" ry="15" fill="${b}"/>`+[[76,66],[100,62],[124,66],[88,76],[114,76]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="7" fill="#b3123f"/>`).join('')
+};
+const art = m => `<svg viewBox="0 0 200 140" role="img" aria-label="${m.n}"><rect width="200" height="140" fill="${m.bg}"/><ellipse cx="100" cy="124" rx="62" ry="7" fill="#000" opacity=".1"/>${ART[m.k](m.a,m.b)}</svg>`;
+
+const MENU = [
+ {n:'Butter croissant',p:14000,t:'pastries',k:'crescent',a:'#d9923b',b:'#b46d1c',bg:'#fbe9cf',w:'70 g',al:'Gluten, milk',
+  d:'Laminated dough folded with butter, baked until the outside shatters and the inside stays soft.',ing:['Wheat flour','Butter (82% fat)','Milk','Sugar','Yeast','Salt']},
+ {n:'Cinnamon roll',p:16000,t:'buns',k:'spiral',a:'#e0a96d',b:'#fff',bg:'#f6dfe3',w:'110 g',al:'Gluten, milk, eggs',
+  d:'Soft yeast dough rolled with cinnamon sugar and finished with cream-cheese glaze.',ing:['Wheat flour','Butter','Milk','Eggs','Brown sugar','Cinnamon','Cream cheese','Yeast']},
+ {n:'Cheese bun',p:12000,t:'buns',k:'round',a:'#e3a75a',b:'#f5d76e',bg:'#e5efd9',w:'95 g',al:'Gluten, milk, eggs',
+  d:'A savoury bun filled with melted white cheese and brushed with egg wash.',ing:['Wheat flour','Suluguni cheese','Milk','Eggs','Butter','Yeast','Salt']},
+ {n:'Chocolate éclair',p:17000,t:'pastries',k:'long',a:'#e8c48a',b:'#4a2616',bg:'#e9e1f2',w:'85 g',al:'Gluten, milk, eggs',
+  d:'Choux pastry filled with vanilla custard and glazed with dark chocolate.',ing:['Wheat flour','Eggs','Butter','Milk','Dark chocolate','Vanilla','Sugar']},
+ {n:'Napoleon slice',p:24000,t:'cakes',k:'layers',a:'#e6c07b',b:'#fff6df',bg:'#f6dfe3',w:'140 g',al:'Gluten, milk, eggs',
+  d:'Thin puff-pastry layers with vanilla custard cream, crumbled on top.',ing:['Wheat flour','Butter','Milk','Eggs','Sugar','Vanilla','Cornstarch']},
+ {n:'Honey cake',p:26000,t:'cakes',k:'layers',a:'#b9772e',b:'#f1dcae',bg:'#e5efd9',w:'150 g',al:'Gluten, milk, eggs, honey',
+  d:'Six honey sponge layers soaked in sour-cream filling. Better the next day.',ing:['Wheat flour','Honey','Sour cream','Eggs','Butter','Sugar','Baking soda']},
+ {n:'Berry tartlet',p:19000,t:'pastries',k:'tart',a:'#d9a65e',b:'#fff2d0',bg:'#e9e1f2',w:'90 g',al:'Gluten, milk, eggs',
+  d:'Crisp shortcrust shell, vanilla cream and fresh seasonal berries.',ing:['Wheat flour','Butter','Eggs','Milk','Sugar','Vanilla','Fresh berries']},
+ {n:'Poppy seed bun',p:11000,t:'buns',k:'round',a:'#cf9550',b:'#2b2b3a',bg:'#fbe9cf',w:'90 g',al:'Gluten, milk, eggs',
+  d:'Sweet bun with a rich poppy seed filling and a sprinkle of seeds on top.',ing:['Wheat flour','Poppy seeds','Milk','Eggs','Sugar','Butter','Yeast']}
+];
+// BUG 1: in the buggy version the footer FAQ link points to a section id that does not exist
+document.getElementById('faqLink').setAttribute('href', FIXED ? '#faq' : '#faqs');
+const PAGES = [['home','Home'],['about','About'],['order','Order'],['bonus','Bonus']];
+const money = n => String(n).replace(/\B(?=(\d{3})+$)/g,' ') + " so'm";
+
+// nav (all main links always work)
+document.getElementById('nav').innerHTML = PAGES.map(([id,l]) =>
+  `<a href="#${id}">${l}</a>`).join('');
+
+function show(){
+  const id = location.hash.slice(1) || 'home';
+  document.querySelectorAll('section').forEach(s => s.classList.toggle('show', s.id===id));
+  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.hash==='#'+id));
+}
+addEventListener('hashchange', show); show();
+
+// catalog
+let filter='all', query='';
+function render(){
+  const list = MENU.filter(m => (filter==='all' || m.t===filter) && m.n.toLowerCase().includes(query));
+  // BUG 2: a search with no matches crashes the script
+  if (!FIXED && list.length===0) { list[0].n; }
+  document.getElementById('items').innerHTML = list.map(m => `
+    <article class="item" data-tags="${m.t}">${art(m)}
+      <div class="body"><strong>${m.n}</strong><span class="meta">${m.w}</span>
+        <div class="row"><span class="price">${money(m.p)}</span>
+        <button class="ghost more" data-i="${MENU.indexOf(m)}">Details</button></div></div></article>`).join('')
+    || '<p>Nothing matches your search. Try another word.</p>';
+  document.getElementById('count').textContent = list.length + ' product' + (list.length===1?'':'s');
+}
+document.getElementById('search').addEventListener('input', e => { query = e.target.value.trim().toLowerCase(); render(); });
+document.querySelectorAll('[data-filter]').forEach(b => b.addEventListener('click', () => {
+  // BUG 3: the Cakes button is not wired up in the buggy version
+  if (!FIXED && b.dataset.filter==='cakes') return;
+  filter = b.dataset.filter;
+  document.querySelectorAll('[data-filter]').forEach(x => x.classList.toggle('on', x===b));
+  render();
+}));
+render();
+
+// details dialog
+const dlg = document.getElementById('dlg'), body = document.getElementById('dlgBody');
+document.getElementById('items').addEventListener('click', e => {
+  const btn = e.target.closest('.more'); if (!btn) return;
+  const i = +btn.dataset.i, m = MENU[i];
+  body.innerHTML = `${art(m)}<div class="inner"><h2 id="dlgTitle">${m.n}</h2>
+    <p>${m.d}</p><h3>Ingredients</h3><ul>${m.ing.map(x=>`<li>${x}</li>`).join('')}</ul>
+    <p class="meta">Weight: ${m.w} · Contains: ${m.al}</p><p class="price">${money(m.p)}</p>
+    <div class="actions"><button id="orderThis">Order this</button><button class="ghost" id="closeDlg">Close</button></div></div>`;
+  document.getElementById('closeDlg').onclick = () => dlg.close();
+  document.getElementById('orderThis').onclick = () => { document.getElementById('product').value = i; dlg.close(); location.hash = 'order'; };
+  dlg.showModal();
+});
+dlg.addEventListener('click', e => { if (e.target===dlg) dlg.close(); });
+
+// bonuses / loyalty card
+const REWARDS = ['Free delivery','Sam Bakery sticker pack','10% off your next order','Free mini cookie','Free coffee',
+  'Skip the queue: collect at the front door','Free cinnamon roll','Your name written in icing on the box',
+  'Mystery bun picked by the baker','Free cake (small cake or any slice)'];
+const store = {get(k){try{return localStorage.getItem(k)}catch(e){return null}}, set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+let total = Number(store.get('sam_orders')) || 0;
+let cardId = store.get('sam_card');
+if (!cardId) { cardId = 'SAM-' + Math.random().toString(36).slice(2,8).toUpperCase(); store.set('sam_card', cardId); }
+const stamps = () => total > 0 && total % 10 === 0 ? 10 : total % 10;
+function drawBonuses(){
+  const n = stamps();
+  document.getElementById('cardId').textContent = 'Card ' + cardId;
+  document.getElementById('cardSub').textContent = n + ' of 10 stamps · ' + Math.floor(total/10) + ' card(s) completed';
+  document.getElementById('barFill').style.width = n*10 + '%';
+  document.querySelector('.bar').setAttribute('aria-valuenow', n);
+  document.querySelector('#rewards tbody').innerHTML = REWARDS.map((r,i) => {
+    const k = i+1, st = k<=n ? ['ok','Unlocked'] : k===n+1 ? ['','Next reward'] : ['','Locked'];
+    return `<tr class="${k<=n?'done':k===n+1?'next':''}"><td>${k===10?'10th':k+(k===1?'st':k===2?'nd':k===3?'rd':'th')} order</td><td>${r}</td><td><span class="tag ${st[0]}">${st[1]}</span></td></tr>`;
+  }).join('');
+}
+function earnStamp(){ total++; store.set('sam_orders', total); drawBonuses(); const n = stamps(); return {n, text: REWARDS[n-1]}; }
+document.getElementById('showQr').onclick = () => {
+  body.innerHTML = `<div class="inner" style="text-align:center"><h2 id="dlgTitle">Your bonus card</h2>
+    <p class="meta">Show this code at the counter.</p><div id="qr" class="qr"></div>
+    <p><strong>${cardId}</strong> · ${stamps()}/10 stamps</p>
+    <div class="actions" style="justify-content:center"><button class="ghost" id="closeDlg">Close</button></div></div>`;
+  const holder = document.getElementById('qr');
+  if (window.QRCode) new QRCode(holder, {text:`SAMBAKERY|${cardId}|${total}`, width:200, height:200, colorDark:'#000000', colorLight:'#ffffff'});
+  else holder.textContent = 'QR code could not load. Your card number is ' + cardId;
+  document.getElementById('closeDlg').onclick = () => dlg.close();
+  dlg.showModal();
+};
+document.getElementById('resetCard').onclick = () => { total = 0; store.set('sam_orders', 0); drawBonuses(); };
+drawBonuses();
+
+// order form
+document.getElementById('product').innerHTML = MENU.map((m,i) => `<option value="${i}">${m.n} – ${money(m.p)}</option>`).join('');
+const form = document.getElementById('booking');
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const v = Object.fromEntries(new FormData(form));
+  const errs = {};
+  if (FIXED) {  // BUG 4: the buggy version accepts any input at all
+    if (v.name.trim().length < 2) errs.name = 'Enter your name.';
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v.email)) errs.email = 'Enter a valid email like name@example.com.';
+    if (!v.date) errs.date = 'Choose a pickup date.';
+    else if (v.date < new Date().toISOString().slice(0,10)) errs.date = 'Choose today or a later date.';
+    const q = Number(v.qty);
+    if (!Number.isInteger(q) || q < 1 || q > 20) errs.qty = 'Enter a whole number from 1 to 20.';
+  }
+  form.querySelectorAll('[data-err]').forEach(d => d.textContent = errs[d.dataset.err] || '');
+  const box = document.getElementById('confirm');
+  if (Object.keys(errs).length) { box.hidden = true; return; }
+  const m = MENU[v.product];
+  box.hidden = false;
+  box.textContent = `Order confirmed for ${v.name || 'guest'}: ${v.qty} × ${m.n} (${money(m.p * (Number(v.qty)||0))}), pickup ${v.date || 'date not set'}.`;
+  const reward = earnStamp();
+  box.textContent += ` Stamp ${reward.n}/10 added. Bonus unlocked: ${reward.text}. Show your QR code at pickup.`;
+});
+</script>
+</body>
+</html>
